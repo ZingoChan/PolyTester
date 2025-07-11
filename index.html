@@ -100,11 +100,8 @@
 
   <!-- Top left info -->
   <div id="ui">
-    <label>
-      Polygon Segments:
-      <input type="range" id="polyRange" min="1" max="150" value="1">
-      <input type="number" id="polyInput" min="1" max="150" value="1" style="width: 60px;">
-    </label>
+    <label>Cube Segments:</label>
+    <input id="segments" type="range" min="1" max="100" value="1">
     <span id="segValue">1</span><br>
     <span>Lines: <span id="polyCount">12</span></span><br>
     <span>FPS: <span id="fps">...</span></span>
@@ -167,24 +164,11 @@
     }
 
     // UI control
-    const segSlider = document.getElementById("polyRange");
-    const segInput = document.getElementById("polyInput");
-    const segValue = document.getElementById("segValue");
-
-    function updateSegments(value) {
-      let segs = Math.min(Math.max(parseInt(value) || 1, 1), 150); // clamp between 1 and 150
-      segValue.innerText = segs;
-      segSlider.value = segs;
-      segInput.value = segs;
+    const segSlider = document.getElementById("segments");
+    segSlider.addEventListener("input", () => {
+      const segs = parseInt(segSlider.value);
+      document.getElementById("segValue").innerText = segs;
       updateWireframeGeometry(segs);
-    }
-
-    segSlider.addEventListener("input", (e) => {
-      updateSegments(e.target.value);
-    });
-
-    segInput.addEventListener("input", (e) => {
-      updateSegments(e.target.value);
     });
 
     const themeToggle = document.getElementById("invertUI");
