@@ -167,11 +167,24 @@
     }
 
     // UI control
-    const segSlider = document.getElementById("segments");
-    segSlider.addEventListener("input", () => {
-      const segs = parseInt(segSlider.value);
-      document.getElementById("segValue").innerText = segs;
+    const segSlider = document.getElementById("polyRange");
+    const segInput = document.getElementById("polyInput");
+    const segValue = document.getElementById("segValue");
+
+    function updateSegments(value) {
+      let segs = Math.min(Math.max(parseInt(value) || 1, 1), 150); // clamp between 1 and 150
+      segValue.innerText = segs;
+      segSlider.value = segs;
+      segInput.value = segs;
       updateWireframeGeometry(segs);
+    }
+
+    segSlider.addEventListener("input", (e) => {
+      updateSegments(e.target.value);
+    });
+
+    segInput.addEventListener("input", (e) => {
+      updateSegments(e.target.value);
     });
 
     const themeToggle = document.getElementById("invertUI");
