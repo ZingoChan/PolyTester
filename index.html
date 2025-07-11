@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PolyTester</title>
+  <link rel="icon" href="logo.jpg" type="image/png">
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; font-family: sans-serif; }
+
+    body.light #panel {
+    background: #f0f0f0;
+    color: black;
+    }
+    body.dark #panel {
+    background: #222;
+    color: white;
+    }
+
+    body.light #hamburger {
+    background: rgba(255, 255, 255, 0.15);
+    color: black;
+    }
+    body.dark #hamburger {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    }
+
+    /* UI */
+    #ui {
+      position: absolute; top: 10px; left: 10px;
+      background: rgba(255,255,255,0.85);
+      padding: 10px; font-size: 14px;
+      z-index: 1;
+    }
+
+    /* Hamburger button */
+    #hamburger {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 2;
+      font-size: 24px;
+      cursor: pointer;
+      user-select: none;
+      background: rgba(255,255,255,0.85);
+      padding: 6px 12px;
+      border-radius: 5px;
+    }
+
+    /* Slide panel */
+    #panel {
+    position: absolute;
+    top: 0; right: -400px; /* wider */
+    width: 400px;
+    height: 100vh;
+    background: #f0f0f0;
+    color: black;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.3);
+    padding: 20px;
+    box-sizing: border-box;
+    transition: right 0.3s ease;
+    z-index: 1;
+    }
+
+    #panel.open {
+      right: 0;
+    }
+
+    input[type="color"] {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+
+        width: 40px;
+        height: 20px;
+        border: none;
+        border-radius: 999px; /* full rounding */
+        padding: 0;
+        margin-left: 6px;
+        vertical-align: middle;
+        cursor: pointer;
+        background: none;
+        box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 0;
+        border-radius: 999px;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+        border: none;
+        border-radius: 999px;
+    }
+
+    label { display: block; margin-top: 10px; }
+  </style>
+</head>
+<body class="dark">
+
+  <!-- Top left info -->
+  <div id="ui">
+    <label>Cube Segments:</label>
+    <input id="segments" type="range" min="1" max="100" value="1">
+    <span id="segValue">1</span><br>
+    <span>Lines: <span id="polyCount">12</span></span><br>
+    <span>FPS: <span id="fps">...</span></span>
+  </div>
+
+  <!-- Hamburger icon -->
+  <div id="hamburger">☰</div>
+
+  <!-- Slide-out panel -->
+  <div id="panel">
+    <h3>Settings</h3>
+    <label>Color Block: <input type="color" id="colorBlock" value="#00ffff"></label>
+    <label>Background: <input type="color" id="bgColor" value="#000000"></label>
+    <label>Spinning Speed: <input type="range" id="spinSpeed" min="0" max="10" value="1" step="0.1"></label>
+    <label>
+    Inverted UI:
+    <input type="checkbox" id="invertUI" />
+    </label>
+
+    <h3>About</h3>
+    <p>
+    PolyTester is where you'll test how strong your PC is based on the polygons that are in this cube.
+    </p>
+
+    <p>
+    This will help you decide how detailed the game should be, while your graphics are still clean and comfy!
+    </p>
+
+    <p>
+    Created by ZingoChan, this design is unique. If you’re inspired to create your own version, please innovate and ensure it is distinct. Thank you!
+    </p>
+
+
+  </div>
+
+  <script>
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 3;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Cube
+    let material = new THREE.LineBasicMaterial({ color: 0x00ffff });
+    const geo = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
+    const wireGeo = new THREE.WireframeGeometry(geo);
+    const cube = new THREE.LineSegments(wireGeo, material);
+    scene.add(cube);
+
+    function updateWireframeGeometry(segs) {
+      const newGeo = new THREE.BoxGeometry(1, 1, 1, segs, segs, segs);
+      const newWire = new THREE.WireframeGeometry(newGeo);
+      cube.geometry.dispose();
+      cube.geometry = newWire;
+      document.getElementById("polyCount").innerText = newWire.attributes.position.count / 2;
+    }
+
+    // UI control
+    const segSlider = document.getElementById("segments");
+    segSlider.addEventListener("input", () => {
+      const segs = parseInt(segSlider.value);
+      document.getElementById("segValue").innerText = segs;
+      updateWireframeGeometry(segs);
+    });
+
+    const themeToggle = document.getElementById("invertUI");
+    const body = document.body;
+
+    // Set default (optional)
+    body.classList.add("light");
+
+    themeToggle.addEventListener("change", () => {
+        if (themeToggle.checked) {
+            body.classList.remove("dark");
+            body.classList.add("light");
+        } else {
+            body.classList.remove("light");
+            body.classList.add("dark");
+        }
+    });
+
+    // Menu toggle
+    document.getElementById("hamburger").onclick = () => {
+      document.getElementById("panel").classList.toggle("open");
+    };
+
+    // Color block
+    document.getElementById("colorBlock").addEventListener("input", (e) => {
+      material.color.set(e.target.value);
+    });
+
+    // Background
+    document.getElementById("bgColor").addEventListener("input", (e) => {
+      scene.background = new THREE.Color(e.target.value);
+    });
+
+    // Spinning speed
+    let spinSpeed = 1;
+    document.getElementById("spinSpeed").addEventListener("input", (e) => {
+      spinSpeed = parseFloat(e.target.value);
+    });
+
+    // FPS counter
+    let lastTime = performance.now();
+    let frameCount = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      cube.rotation.x += 0.01 * spinSpeed;
+      cube.rotation.y += 0.01 * spinSpeed;
+      renderer.render(scene, camera);
+
+      frameCount++;
+      const now = performance.now();
+      if (now - lastTime >= 1000) {
+        document.getElementById("fps").innerText = frameCount;
+        frameCount = 0;
+        lastTime = now;
+      }
+    }
+
+    animate();
+  </script>
+</body>
+</html>
