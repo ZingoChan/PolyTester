@@ -100,8 +100,11 @@
 
   <!-- Top left info -->
   <div id="ui">
-    <label>Cube Segments:</label>
-    <input id="segments" type="range" min="1" max="100" value="1">
+    <label>
+      Polygon Segments:
+      <input type="range" id="polyRange" min="1" max="150" value="1">
+      <input type="number" id="polyInput" min="1" max="150" value="1" style="width: 60px;">
+    </label>
     <span id="segValue">1</span><br>
     <span>Lines: <span id="polyCount">12</span></span><br>
     <span>FPS: <span id="fps">...</span></span>
